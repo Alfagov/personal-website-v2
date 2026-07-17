@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/colors.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/typography.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/base.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/styles.css">
+<script src="./site-data.js"></script>
+<style>
+body{margin:0;background:#fbfbfa}
+a{color:#0f62fe;text-decoration:none}
+a:hover{color:#054ada;text-decoration:underline}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#0f62fe !important}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg-page);color:var(--text-primary)">
+<header style="position:sticky;top:0;background:var(--bg-page);z-index:20;border-bottom:1px solid var(--border-hairline)">
+  <div style="max-width:1120px;margin:0 auto;padding:0 64px;display:flex;align-items:center;justify-content:space-between;height:72px">
+    <div style="display:flex;align-items:baseline;gap:14px">
+      <div style="font-family:var(--font-mono);font-size:13px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase">Lorenzo Pulcini</div>
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;padding:3px 7px;border:1px solid var(--border-accent);color:var(--accent)">Admin</span>
+    </div>
+    <a href="Lorenzo Pulcini Website.dc.html" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-link)">View site →</a>
+  </div>
+</header>
+
+<div style="max-width:1120px;margin:0 auto;padding:48px 64px 96px">
+  <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:16px">Content Management</div>
+  <div style="display:flex;gap:32px;border-bottom:1px solid var(--border-hairline);margin-bottom:48px">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+      <a href="#" onClick="{{ t.go }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:{{ t.color }};text-decoration:none;border-bottom:{{ t.border }};padding:12px 0">{{ t.label }}</a>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <div style="font-family:var(--font-serif);font-size:var(--text-h3);color:var(--text-primary)">Articles &amp; Publications</div>
+        <button onClick="{{ newArticle }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:var(--accent);color:var(--text-on-accent);border:none;padding:10px 18px;cursor:pointer">＋ New article</button>
+      </div>
+      <sc-for list="{{ articleRows }}" as="a" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:24px;align-items:center;padding:18px 0;border-top:{{ a.borderTop }};border-bottom:1px solid var(--border-hairline)">
+          <div>
+            <div style="font-family:var(--font-serif);font-size:18px;color:var(--text-primary)">{{ a.title }}</div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);margin-top:4px">{{ a.meta }}</div>
+          </div>
+          <button onClick="{{ a.edit }}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:transparent;color:var(--text-link);border:none;border-bottom:1px solid var(--text-link);padding:0 0 2px;cursor:pointer">Edit</button>
+          <button onClick="{{ a.del }}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:transparent;color:var(--red-600, #da1e28);border:none;border-bottom:1px solid #da1e28;padding:0 0 2px;cursor:pointer">Delete</button>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEditor }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px">
+        <div style="font-family:var(--font-serif);font-size:var(--text-h3);color:var(--text-primary)">{{ editorTitle }}</div>
+        <div style="display:flex;gap:12px">
+          <button onClick="{{ cancelEdit }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:transparent;color:var(--text-primary);border:1px solid var(--border-strong);padding:10px 18px;cursor:pointer">Cancel</button>
+          <button onClick="{{ saveArticle }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:var(--accent);color:var(--text-on-accent);border:none;padding:10px 18px;cursor:pointer">Save article</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px 24px">
+        <div style="grid-column:span 2">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Title</div>
+          <input name="title" value="{{ draft.title }}" onChange="{{ onField }}" style="font-family:var(--font-serif);font-size:18px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Category</div>
+          <input name="category" value="{{ draft.category }}" onChange="{{ onField }}" placeholder="Working Paper, Explainer…" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Status</div>
+          <select name="status" value="{{ draft.status }}" onChange="{{ onField }}" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+            <option>Article</option><option>Preprint</option><option>Working Paper</option><option>Peer Reviewed</option><option>Draft</option><option>Thesis</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Date / Venue</div>
+          <input name="date" value="{{ draft.date }}" onChange="{{ onField }}" placeholder="17 Jul 2026 · Preprint" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Tags (comma separated)</div>
+          <input name="tags" value="{{ draft.tags }}" onChange="{{ onField }}" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Card color</div>
+          <select name="mediaBg" value="{{ draft.mediaBg }}" onChange="{{ onField }}" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+            <option value="var(--ink-900)">Ink</option><option value="var(--blue-600)">Blue</option><option value="var(--blue-500)">Light blue</option><option value="var(--gray-150)">Gray</option><option value="var(--green-700)">Green</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Card icon</div>
+          <select name="icon" value="{{ draft.icon }}" onChange="{{ onField }}" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+            <option value="pen-line">Pen</option><option value="book-open">Book</option><option value="line-chart">Chart</option><option value="search">Search</option><option value="activity">Activity</option><option value="rocket">Rocket</option><option value="puzzle">Puzzle</option>
+          </select>
+        </div>
+        <div style="grid-column:span 2">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Abstract</div>
+          <textarea name="abstract" value="{{ draft.abstract }}" onChange="{{ onField }}" rows="3" style="font-family:var(--font-serif);font-size:15px;line-height:1.5;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0;resize:vertical"></textarea>
+        </div>
+        <div style="grid-column:span 2">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Key metrics (one per line: Label | Value)</div>
+          <textarea name="metrics" value="{{ draft.metrics }}" onChange="{{ onField }}" rows="3" placeholder="Folds | 12" style="font-family:var(--font-mono);font-size:13px;line-height:1.6;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0;resize:vertical"></textarea>
+        </div>
+        <div style="grid-column:span 2">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Body paragraphs (separate with a blank line)</div>
+          <textarea name="body" value="{{ draft.body }}" onChange="{{ onField }}" rows="8" style="font-family:var(--font-serif);font-size:15px;line-height:1.5;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0;resize:vertical"></textarea>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">HTML / CSS embed (rendered after the body)</div>
+          <textarea name="html" value="{{ draft.html }}" onChange="{{ onField }}" rows="14" placeholder="&lt;style&gt;.chart{…}&lt;/style&gt;&#10;&lt;figure class=&quot;chart&quot;&gt;…&lt;/figure&gt;" spellcheck="false" style="font-family:var(--font-mono);font-size:12.5px;line-height:1.6;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0;resize:vertical"></textarea>
+        </div>
+        <div>
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Live preview</div>
+          <div style="border:1px solid var(--border-hairline);background:var(--white);padding:20px;min-height:300px;overflow:auto">{{ htmlPreview }}</div>
+        </div>
+        <div style="grid-column:span 2">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:6px">Method note</div>
+          <textarea name="method" value="{{ draft.method }}" onChange="{{ onField }}" rows="2" style="font-family:var(--font-serif);font-size:15px;line-height:1.5;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0;resize:vertical"></textarea>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isExperience }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="font-family:var(--font-serif);font-size:var(--text-h3);color:var(--text-primary);margin-bottom:24px">Experience</div>
+      <sc-for list="{{ exRows }}" as="x" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding:18px 0;border-top:{{ x.borderTop }};border-bottom:1px solid var(--border-hairline)">
+          <div>
+            <div style="font-family:var(--font-serif);font-size:18px;color:var(--text-primary)">{{ x.title }}</div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);margin-top:4px">{{ x.meta }}</div>
+          </div>
+          <button onClick="{{ x.del }}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:transparent;color:#da1e28;border:none;border-bottom:1px solid #da1e28;padding:0 0 2px;cursor:pointer">Remove</button>
+        </div>
+      </sc-for>
+      <div style="border:1px solid var(--border-hairline);padding:32px;margin-top:40px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px">Add experience</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 24px">
+          <input name="company" value="{{ ex.company }}" onChange="{{ onExField }}" placeholder="Company" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <input name="role" value="{{ ex.role }}" onChange="{{ onExField }}" placeholder="Role" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <input name="period" value="{{ ex.period }}" onChange="{{ onExField }}" placeholder="Period — e.g. Jan 2026 — Present" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <input name="location" value="{{ ex.location }}" onChange="{{ onExField }}" placeholder="Location" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <div style="grid-column:span 2">
+            <textarea name="highlights" value="{{ ex.highlights }}" onChange="{{ onExField }}" rows="4" placeholder="Highlights — one per line" style="font-family:var(--font-serif);font-size:15px;line-height:1.5;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0;resize:vertical"></textarea>
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);cursor:pointer">
+            <input type="checkbox" name="isCurrent" checked="{{ ex.isCurrent }}" onChange="{{ onExField }}" style="width:16px;height:16px;accent-color:#0f62fe">Current position
+          </label>
+          <div style="text-align:right">
+            <button onClick="{{ addEx }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:var(--accent);color:var(--text-on-accent);border:none;padding:10px 18px;cursor:pointer">＋ Add experience</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isEducation }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="font-family:var(--font-serif);font-size:var(--text-h3);color:var(--text-primary);margin-bottom:24px">Education</div>
+      <sc-for list="{{ edRows }}" as="x" hint-placeholder-count="2">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding:18px 0;border-top:{{ x.borderTop }};border-bottom:1px solid var(--border-hairline)">
+          <div>
+            <div style="font-family:var(--font-serif);font-size:18px;color:var(--text-primary)">{{ x.title }}</div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);margin-top:4px">{{ x.meta }}</div>
+          </div>
+          <button onClick="{{ x.del }}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:transparent;color:#da1e28;border:none;border-bottom:1px solid #da1e28;padding:0 0 2px;cursor:pointer">Remove</button>
+        </div>
+      </sc-for>
+      <div style="border:1px solid var(--border-hairline);padding:32px;margin-top:40px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px">Add education</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 24px">
+          <input name="degree" value="{{ ed.degree }}" onChange="{{ onEdField }}" placeholder="Degree — e.g. MS, Quantitative Finance" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <input name="school" value="{{ ed.school }}" onChange="{{ onEdField }}" placeholder="School" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <input name="period" value="{{ ed.period }}" onChange="{{ onEdField }}" placeholder="Period" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <input name="location" value="{{ ed.location }}" onChange="{{ onEdField }}" placeholder="Location" style="font-family:var(--font-mono);font-size:13px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          <div style="grid-column:span 2">
+            <input name="note" value="{{ ed.note }}" onChange="{{ onEdField }}" placeholder="Note — GPA, thesis, honors…" style="font-family:var(--font-serif);font-size:15px;padding:10px 12px;border:1px solid var(--gray-200);background:var(--white);color:var(--ink-900);width:100%;box-sizing:border-box;border-radius:0">
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);cursor:pointer">
+            <input type="checkbox" name="isCurrent" checked="{{ ed.isCurrent }}" onChange="{{ onEdField }}" style="width:16px;height:16px;accent-color:#0f62fe">Current
+          </label>
+          <div style="text-align:right">
+            <button onClick="{{ addEd }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:var(--accent);color:var(--text-on-accent);border:none;padding:10px 18px;cursor:pointer">＋ Add education</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="margin-top:64px;padding-top:24px;border-top:1px solid var(--border-hairline);display:flex;justify-content:space-between;align-items:center">
+    <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-tertiary)">Changes save to this browser and appear on the site immediately</div>
+    <button onClick="{{ resetAll }}" style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;background:transparent;color:var(--text-tertiary);border:none;border-bottom:1px solid var(--gray-200);padding:0 0 2px;cursor:pointer">Reset to defaults</button>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'articles', editing: false, draft: null, ex: Component.blankEx(), ed: Component.blankEd(), rev: 0 };
+  static blankEx() { return { company: '', role: '', period: '', location: '', highlights: '', isCurrent: false }; }
+  static blankEd() { return { degree: '', school: '', period: '', location: '', note: '', isCurrent: false }; }
+  componentDidMount() {
+    if (!window.LP_DATA) { this._t = setInterval(() => { if (window.LP_DATA) { clearInterval(this._t); this.forceUpdate(); } }, 120); }
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+  data() { return window.LP_DATA ? window.LP_DATA.load() : { articles: [], experiences: [], education: [] }; }
+  persist(d) { if (window.LP_DATA) window.LP_DATA.save(d); this.setState({ rev: this.state.rev + 1 }); }
+  renderVals() {
+    const d = this.data();
+    const bt = i => i === 0 ? '1px solid var(--border-strong)' : 'none';
+    const tabDefs = [
+      { key: 'articles', label: 'Articles' },
+      { key: 'experience', label: 'Experience' },
+      { key: 'education', label: 'Education' }
+    ];
+    const tabs = tabDefs.map(t => ({
+      label: t.label,
+      color: this.state.tab === t.key ? 'var(--accent)' : 'var(--text-primary)',
+      border: this.state.tab === t.key ? '2px solid var(--accent)' : '2px solid transparent',
+      go: (e) => { e.preventDefault(); this.setState({ tab: t.key, editing: false }); }
+    }));
+    const toDraft = a => ({
+      id: a.id, title: a.title || '', category: a.category || '', status: a.status || 'Article',
+      date: a.date || '', tags: (a.tags || []).join(', '), mediaBg: a.mediaBg || 'var(--ink-900)',
+      icon: a.icon || 'pen-line', abstract: a.abstract || '',
+      metrics: (a.metrics || []).map(m => m.label + ' | ' + m.value).join('\n'),
+      body: (a.body || []).join('\n\n'), html: a.html || '', method: a.method || '',
+      showFigure: !!a.showFigure
+    });
+    const articleRows = d.articles.map((a, i) => ({
+      title: a.title, meta: (a.status || '') + ' · ' + (a.date || ''), borderTop: bt(i),
+      edit: () => this.setState({ editing: true, draft: toDraft(a) }),
+      del: () => { d.articles = d.articles.filter(x => x.id !== a.id); this.persist(d); }
+    }));
+    const dr = this.state.draft || {};
+    const htmlPreview = React.createElement('div', {
+      style: { fontFamily: 'var(--font-serif)', fontSize: '15px', lineHeight: 1.6, color: 'var(--ink-900)' },
+      dangerouslySetInnerHTML: { __html: dr.html || '<span style="font-family:var(--font-mono);font-size:12px;color:#8b8f97;text-transform:uppercase;letter-spacing:0.08em">HTML preview renders here</span>' }
+    });
+    const exRows = d.experiences.map((x, i) => ({
+      title: x.role + ' — ' + x.company, meta: x.period + ' · ' + x.location + (x.isCurrent ? ' · Current' : ''), borderTop: bt(i),
+      del: () => { d.experiences.splice(i, 1); this.persist(d); }
+    }));
+    const edRows = d.education.map((x, i) => ({
+      title: x.degree + ' — ' + x.school, meta: x.period + ' · ' + x.location + (x.isCurrent ? ' · Current' : ''), borderTop: bt(i),
+      del: () => { d.education.splice(i, 1); this.persist(d); }
+    }));
+    return {
+      tabs,
+      showList: this.state.tab === 'articles' && !this.state.editing,
+      showEditor: this.state.tab === 'articles' && this.state.editing,
+      isExperience: this.state.tab === 'experience',
+      isEducation: this.state.tab === 'education',
+      editorTitle: dr.id ? 'Edit article' : 'New article',
+      articleRows, exRows, edRows, htmlPreview,
+      draft: dr, ex: this.state.ex, ed: this.state.ed,
+      newArticle: () => this.setState({ editing: true, draft: toDraft({ status: 'Draft', mediaBg: 'var(--blue-600)', icon: 'pen-line' }) }),
+      cancelEdit: () => this.setState({ editing: false, draft: null }),
+      onField: (e) => { const t = e.target; this.setState({ draft: { ...this.state.draft, [t.name]: t.type === 'checkbox' ? t.checked : t.value } }); },
+      onExField: (e) => { const t = e.target; this.setState({ ex: { ...this.state.ex, [t.name]: t.type === 'checkbox' ? t.checked : t.value } }); },
+      onEdField: (e) => { const t = e.target; this.setState({ ed: { ...this.state.ed, [t.name]: t.type === 'checkbox' ? t.checked : t.value } }); },
+      saveArticle: () => {
+        const dd = this.state.draft; if (!dd || !dd.title.trim()) return;
+        const article = {
+          id: dd.id || dd.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36),
+          title: dd.title.trim(), category: dd.category.trim(), status: dd.status, date: dd.date.trim(),
+          tags: dd.tags.split(',').map(s => s.trim()).filter(Boolean),
+          mediaBg: dd.mediaBg, icon: dd.icon, abstract: dd.abstract.trim(),
+          metrics: dd.metrics.split('\n').map(l => { const p = l.split('|'); return p.length >= 2 ? { label: p[0].trim(), value: p.slice(1).join('|').trim() } : null; }).filter(Boolean),
+          body: dd.body.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean),
+          html: dd.html, method: dd.method.trim(),
+          accent: ['Preprint', 'Article', 'Peer Reviewed', 'Working Paper'].includes(dd.status),
+          showFigure: !!dd.showFigure
+        };
+        const idx = d.articles.findIndex(a => a.id === article.id);
+        if (idx >= 0) d.articles[idx] = article; else d.articles.unshift(article);
+        this.persist(d); this.setState({ editing: false, draft: null });
+      },
+      addEx: () => {
+        const x = this.state.ex; if (!x.company.trim() || !x.role.trim()) return;
+        d.experiences.unshift({ company: x.company.trim(), role: x.role.trim(), period: x.period.trim(), location: x.location.trim(), isCurrent: !!x.isCurrent, highlights: x.highlights.split('\n').map(s => s.trim()).filter(Boolean) });
+        this.persist(d); this.setState({ ex: Component.blankEx() });
+      },
+      addEd: () => {
+        const x = this.state.ed; if (!x.degree.trim() || !x.school.trim()) return;
+        d.education.unshift({ degree: x.degree.trim(), school: x.school.trim(), period: x.period.trim(), location: x.location.trim(), note: x.note.trim(), isCurrent: !!x.isCurrent });
+        this.persist(d); this.setState({ ed: Component.blankEd() });
+      },
+      resetAll: () => { if (window.LP_DATA) window.LP_DATA.reset(); this.setState({ rev: this.state.rev + 1 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

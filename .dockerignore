@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+.DS_Store
+data/
+node_modules/
+*.dc.html
+site-data.js
+support.js
+.thumbnail

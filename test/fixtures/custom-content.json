@@ -1,0 +1,15 @@
+{
+  "profile": {},
+  "articles": [
+    {
+      "id": "sandbox-demo",
+      "embed": {
+        "html": "<main id=\"demo\">Sandbox demo</main>",
+        "css": "body{margin:0}#demo{color:#0f62fe}",
+        "js": "document.title = 'Sandbox demo';",
+        "placement": "only",
+        "height": 640
+      }
+    }
+  ]
+}

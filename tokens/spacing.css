@@ -1,0 +1,28 @@
+:root{
+--unit:4px;
+--space-1:4px;
+--space-2:8px;
+--space-3:12px;
+--space-4:16px;
+--space-5:24px;
+--space-6:32px;
+--space-7:48px;
+--space-8:64px;
+--space-9:96px;
+--space-10:128px;
+--space-11:192px;
+
+--grid-columns:12; /* @kind other */
+--grid-gutter:24px;
+--grid-margin:64px;
+--content-max:1120px;
+--rule-width:1px;
+
+--radius-0:0px;
+--radius-1:2px;
+--radius-2:4px;
+
+--ease-standard:cubic-bezier(.4,0,.2,1); /* @kind other */
+--duration-fast:120ms; /* @kind other */
+--duration-base:200ms; /* @kind other */
+}

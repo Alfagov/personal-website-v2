@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/colors.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/typography.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/tokens/base.css">
+<link rel="stylesheet" href="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/styles.css">
+<script src="_ds/lorenzo-pulcini-design-system-645b8b46-eacd-4f42-b74e-174f7ebe023f/_ds_bundle.js"></script>
+<script src="./site-data.js"></script>
+<style>
+body{margin:0;background:#fbfbfa}
+a{color:#0f62fe;text-decoration:none}
+a:hover{color:#054ada;text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg-page);color:var(--text-primary)">
+<header style="position:sticky;top:0;background:var(--bg-page);z-index:20;border-bottom:1px solid var(--border-hairline)">
+  <div style="max-width:1120px;margin:0 auto;padding:0 64px;display:flex;align-items:center;justify-content:space-between;height:72px">
+    <div style="font-family:var(--font-mono);font-size:13px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase">Lorenzo Pulcini</div>
+    <nav style="display:flex;gap:36px">
+      <sc-for list="{{ navItems }}" as="it" hint-placeholder-count="3">
+        <a href="#" onClick="{{ it.go }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:{{ it.color }};text-decoration:none;border-bottom:{{ it.border }};padding-bottom:4px" style-hover="color:var(--accent)">{{ it.label }}</a>
+      </sc-for>
+    </nav>
+  </div>
+</header>
+
+<sc-if value="{{ isResearch }}" hint-placeholder-val="{{ true }}">
+<main data-screen-label="Research / Articles">
+  <section style="max-width:1120px;margin:0 auto;padding:96px 64px 64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px">Index — Fig. 01</div>
+    <h1 style="font-family:var(--font-serif);font-size:var(--text-h1);line-height:var(--lh-tight);letter-spacing:var(--tracking-tight);margin:0;color:var(--text-primary);max-width:820px">Research and applied work in quantitative finance.</h1>
+    <p style="font-family:var(--font-serif);font-size:var(--text-body-lg);color:var(--text-secondary);max-width:640px;margin:28px 0 0;line-height:var(--lh-body)">This page collects my research, working notes, and ongoing quantitative projects</p>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:32px">Section 01 — Publications &amp; Articles</div>
+    <div style="border:1px solid var(--border-hairline);border-right:none;border-bottom:none;display:grid;grid-template-columns:repeat(6,1fr)">
+      <sc-for list="{{ pubs }}" as="p" hint-placeholder-count="5">
+        <div style="grid-column:{{ p.span }};cursor:pointer" onClick="{{ p.open }}">
+          <x-import component-from-global-scope="LorenzoPulciniDesignSystem_645b8b.ArticleCard" dc-props="{{ p.card }}" style="height:100%;display:block" hint-size="100%,440px"></x-import>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:32px">Section 02 — Research Projects</div>
+    <div style="border:1px solid var(--border-hairline);border-right:none;border-bottom:none;display:grid;grid-template-columns:repeat(6,1fr)">
+      <sc-for list="{{ projs }}" as="p" hint-placeholder-count="3">
+        <div style="grid-column:span 2;cursor:{{ p.cursor }}" onClick="{{ p.open }}">
+          <x-import component-from-global-scope="LorenzoPulciniDesignSystem_645b8b.ArticleCard" dc-props="{{ p.card }}" style="height:100%;display:block" hint-size="100%,440px"></x-import>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<sc-if value="{{ isArticle }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Article Detail">
+  <section style="max-width:1120px;margin:0 auto;padding:80px 64px 96px">
+    <a href="#" onClick="{{ backToResearch }}" style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-link);display:inline-block;margin-bottom:32px">← Back to Index</a>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px">
+      <span style="font-family:var(--font-mono);font-size:10px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;padding:3px 7px;border:1px solid {{ article.statusBorder }};color:{{ article.statusColor }};display:inline-block">{{ article.status }}</span>
+      <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary)">{{ article.date }}</span>
+    </div>
+    <h1 style="font-family:var(--font-serif);font-size:var(--text-h1);line-height:var(--lh-heading);margin:0 0 24px;color:var(--text-primary);max-width:820px">{{ article.title }}</h1>
+    <p style="font-family:var(--font-serif);font-size:var(--text-body-lg);color:var(--text-secondary);max-width:720px;line-height:var(--lh-body);margin:0 0 48px">{{ article.abstract }}</p>
+    <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding:40px 0;max-width:720px">
+      <sc-for list="{{ article.metrics }}" as="m" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:6px;border-top:2px solid var(--border-strong);padding-top:12px">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary)">{{ m.label }}</div>
+          <div style="font-family:var(--font-mono);font-size:28px;font-weight:700;color:var(--text-primary)">{{ m.value }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+    <div style="padding:48px 0 0;max-width:720px">
+      <sc-for list="{{ article.body }}" as="para" hint-placeholder-count="2">
+        <p style="font-family:var(--font-serif);font-size:17px;color:var(--text-primary);line-height:var(--lh-body);margin:0 0 24px">{{ para }}</p>
+      </sc-for>
+    </div>
+    <div style="max-width:720px;padding:0 0 24px">{{ article.htmlBody }}</div>
+    <sc-if value="{{ article.showFigure }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:24px 0 48px">
+        <x-import component-from-global-scope="LorenzoPulciniDesignSystem_645b8b.InteractiveFigure" figure-number="01" steps="{{ figSteps }}" total-layers="{{ figLayers }}" hint-size="100%,560px"></x-import>
+      </div>
+    </sc-if>
+    <div style="border:1px solid var(--border-hairline);padding:20px 24px;max-width:720px">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px">Method</div>
+      <div style="font-family:var(--font-serif);font-size:15px;color:var(--text-secondary);line-height:var(--lh-body)">{{ article.method }}</div>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<sc-if value="{{ isPersonal }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Personal / Me">
+  <section style="max-width:1120px;margin:0 auto;padding:96px 64px 64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px">About — Fig. 02</div>
+    <h1 style="font-family:var(--font-serif);font-size:var(--text-h1);line-height:var(--lh-tight);letter-spacing:var(--tracking-tight);margin:0;color:var(--text-primary)">Lorenzo Pulcini</h1>
+    <p style="font-family:var(--font-serif);font-size:var(--text-body-lg);color:var(--text-secondary);max-width:680px;margin:24px 0 0;line-height:var(--lh-body)">I work at the intersection of financial theory and software engineering. I am completing an MS in Quantitative Finance at Washington University in St. Louis; before that I was a Senior Software Engineer at Accenture, building high-frequency transaction infrastructure for a major financial institution.</p>
+    <sc-if value="{{ showAvailability }}" hint-placeholder-val="{{ true }}">
+      <p style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--accent);margin:24px 0 0">Seeking Fall 2026 internships</p>
+    </sc-if>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:56px;max-width:640px">
+      <div style="display:flex;flex-direction:column;gap:6px;border-top:2px solid var(--border-strong);padding-top:12px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary)">GPA @ WashU</div>
+        <div style="font-family:var(--font-mono);font-size:32px;font-weight:700;color:var(--text-primary)">4.0</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;border-top:2px solid var(--border-strong);padding-top:12px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary)">Startups Co-Founded</div>
+        <div style="font-family:var(--font-mono);font-size:32px;font-weight:700;color:var(--text-primary)">2</div>
+      </div>
+      
+    </div>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:28px">Section 01 — Education</div>
+    <sc-for list="{{ education }}" as="ed" hint-placeholder-count="2">
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:24px;padding:24px 0;border-top:{{ ed.borderTop }};border-bottom:1px solid var(--border-hairline)">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-tertiary)">{{ ed.period }}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);margin-top:4px">{{ ed.location }}</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-serif);font-size:18px;color:var(--text-primary)">{{ ed.degree }}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-top:4px">{{ ed.school }}</div>
+          <div style="font-family:var(--font-serif);font-size:15px;color:var(--text-secondary);margin-top:10px;line-height:var(--lh-body)">{{ ed.note }}</div>
+        </div>
+        <div><sc-if value="{{ ed.isCurrent }}" hint-placeholder-val="{{ false }}"><span style="font-family:var(--font-mono);font-size:10px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;padding:3px 7px;border:1px solid var(--border-accent);color:var(--accent);display:inline-block">Current</span></sc-if></div>
+      </div>
+    </sc-for>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:28px">Section 02 — Experience</div>
+    <sc-for list="{{ experiences }}" as="xp" hint-placeholder-count="5">
+      <div style="display:grid;grid-template-columns:200px 1fr auto;gap:24px;padding:24px 0;border-top:{{ xp.borderTop }};border-bottom:1px solid var(--border-hairline)">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-tertiary)">{{ xp.period }}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-tertiary);margin-top:4px">{{ xp.location }}</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-serif);font-size:18px;color:var(--text-primary)">{{ xp.role }}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-top:4px">{{ xp.company }}</div>
+          <sc-if value="{{ showHighlights }}" hint-placeholder-val="{{ true }}">
+            <ul style="font-family:var(--font-serif);font-size:15px;color:var(--text-secondary);line-height:var(--lh-body);margin:12px 0 0;padding-left:18px;max-width:640px">
+              <sc-for list="{{ xp.highlights }}" as="h" hint-placeholder-count="2"><li>{{ h }}</li></sc-for>
+            </ul>
+          </sc-if>
+        </div>
+        <div><sc-if value="{{ xp.isCurrent }}" hint-placeholder-val="{{ false }}"><span style="font-family:var(--font-mono);font-size:10px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;padding:3px 7px;border:1px solid var(--border-accent);color:var(--accent);display:inline-block">Current</span></sc-if></div>
+      </div>
+    </sc-for>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:28px">Section 03 — Ventures &amp; Applied Work</div>
+    <sc-for list="{{ ventures }}" as="v" hint-placeholder-count="3">
+      <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px 0;border-top:{{ v.borderTop }};border-bottom:1px solid var(--border-hairline)">
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-tertiary)">{{ v.period }}</div>
+        <div>
+          <div style="font-family:var(--font-serif);font-size:18px;color:var(--text-primary)">{{ v.name }}</div>
+          <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-top:4px">{{ v.role }}</div>
+          <div style="font-family:var(--font-serif);font-size:15px;color:var(--text-secondary);margin-top:10px;max-width:620px;line-height:var(--lh-body)">{{ v.description }}</div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <sc-for list="{{ v.tech }}" as="t" hint-placeholder-count="3">
+              <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;padding:5px 10px;border:1px solid var(--border-hairline);color:var(--text-secondary)">{{ t }}</span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:28px">Section 04 — Skills &amp; Certifications</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:40px 48px">
+      <sc-for list="{{ skillGroups }}" as="g" hint-placeholder-count="4">
+        <div style="border-top:1px solid var(--border-strong);padding-top:16px">
+          <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);margin-bottom:14px">{{ g.label }}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ g.items }}" as="s" hint-placeholder-count="5">
+              <span style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;padding:5px 10px;border:1px solid var(--border-hairline);color:var(--text-secondary)">{{ s }}</span>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<sc-if value="{{ isContacts }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Contacts">
+  <section style="max-width:1120px;margin:0 auto;padding:96px 64px 64px">
+    <div style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-wide);text-transform:uppercase;color:var(--text-secondary);margin-bottom:20px">Contact — Fig. 03</div>
+    <h1 style="font-family:var(--font-serif);font-size:var(--text-h1);line-height:var(--lh-tight);letter-spacing:var(--tracking-tight);margin:0;color:var(--text-primary)">Contacts</h1>
+    <p style="font-family:var(--font-serif);font-size:var(--text-body-lg);color:var(--text-secondary);max-width:640px;margin:24px 0 0;line-height:var(--lh-body)">Email is the fastest way to reach me. I answer within one business day.</p>
+    <sc-if value="{{ showAvailability }}" hint-placeholder-val="{{ true }}">
+      <p style="font-family:var(--font-mono);font-size:12px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--accent);margin:24px 0 0">Seeking Fall 2026 internships</p>
+    </sc-if>
+  </section>
+  <hr style="border:none;border-top:1px solid var(--border-hairline);margin:0">
+  <section style="max-width:1120px;margin:0 auto;padding:48px 64px 96px">
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px 0;border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border-hairline)">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);padding-top:2px">Email</div>
+      <a href="mailto:pulcini@wustl.edu" style="font-family:var(--font-serif);font-size:19px;color:var(--text-link)">pulcini@wustl.edu</a>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid var(--border-hairline)">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);padding-top:2px">Phone</div>
+      <div style="font-family:var(--font-serif);font-size:19px;color:var(--text-primary)">+1 (314) 565-4894</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid var(--border-hairline)">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);padding-top:2px">LinkedIn</div>
+      <a href="https://linkedin.com/in/lorenzo-pulcini" target="_blank" style="font-family:var(--font-serif);font-size:19px;color:var(--text-link)">linkedin.com/in/lorenzo-pulcini</a>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid var(--border-hairline)">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);padding-top:2px">GitHub</div>
+      <a href="https://github.com/Alfagov" target="_blank" style="font-family:var(--font-serif);font-size:19px;color:var(--text-link)">github.com/Alfagov</a>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid var(--border-hairline)">
+      <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-secondary);padding-top:2px">Location</div>
+      <div style="font-family:var(--font-serif);font-size:19px;color:var(--text-primary)">St Louis, Missouri, United States</div>
+    </div>
+  </section>
+</main>
+</sc-if>
+
+<footer style="border-top:1px solid var(--border-hairline)">
+  <div style="max-width:1120px;margin:0 auto;padding:32px 64px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-mono-label);text-transform:uppercase;color:var(--text-tertiary)">
+    <div>Lorenzo Pulcini — Bridging Financial Theory and Software</div>
+    <div>St Louis, MO · 2026 · <a href="Admin.dc.html" style="color:var(--text-tertiary)">Admin</a></div>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;landing&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;research&quot;, &quot;personal&quot;, &quot;contacts&quot;], &quot;default&quot;: &quot;research&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Behavior&quot;}, &quot;showAvailability&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Content&quot;}, &quot;compactExperience&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Content&quot;}}">
+class Component extends DCLogic {
+  state = { route: null, articleId: null };
+  componentDidMount() {
+    this._sync = () => this.forceUpdate();
+    window.addEventListener('storage', this._sync);
+    if (!window.LP_DATA) { this._t = setInterval(() => { if (window.LP_DATA) { clearInterval(this._t); this.forceUpdate(); } }, 120); }
+  }
+  componentWillUnmount() { window.removeEventListener('storage', this._sync); clearInterval(this._t); }
+  renderVals() {
+    const route = this.state.route ?? (this.props.landing ?? 'research');
+    const navKey = route === 'article' ? 'research' : route;
+    const items = [
+      { key: 'personal', label: 'Personal' },
+      { key: 'research', label: 'Research / Articles' },
+      { key: 'contacts', label: 'Contacts' }
+    ];
+    const navItems = items.map(it => ({
+      label: it.label,
+      color: navKey === it.key ? 'var(--accent)' : 'var(--text-primary)',
+      border: navKey === it.key ? '2px solid var(--accent)' : '2px solid transparent',
+      go: (e) => { e.preventDefault(); this.setState({ route: it.key }); window.scrollTo(0, 0); }
+    }));
+    const ICON = n => `https://unpkg.com/lucide-static@latest/icons/${n}.svg`;
+    const openPub = id => () => { this.setState({ route: 'article', articleId: id }); window.scrollTo(0, 0); };
+    const store = window.LP_DATA;
+    const d = store ? store.load() : { articles: [], experiences: [], education: [] };
+    const pubsData = d.articles.map((a, i) => ({ ...a, span: i < 2 ? 'span 3' : 'span 2' }));
+    const pubs = pubsData.map(p => ({
+      span: p.span, open: openPub(p.id),
+      card: { iconUrl: ICON(p.icon), category: p.category, title: p.title, authors: 'Lorenzo Pulcini', date: p.date, tags: p.tags, mediaBg: p.mediaBg }
+    }));
+    const pd = pubsData.find(p => p.id === this.state.articleId) || pubsData[0] || { title: "", abstract: "", date: "", status: "", tags: [], metrics: [], body: [] };
+    const article = {
+      title: pd.title, abstract: pd.abstract, date: pd.date, status: pd.status,
+      statusBorder: pd.accent ? 'var(--border-accent)' : 'var(--border-hairline)',
+      statusColor: pd.accent ? 'var(--accent)' : 'var(--text-secondary)',
+      metrics: pd.metrics || [], body: pd.body || [], method: pd.method, showFigure: !!pd.showFigure,
+      htmlBody: pd.html ? React.createElement('div', { style: { fontFamily: 'var(--font-serif)', fontSize: '17px', lineHeight: 1.6, color: 'var(--text-primary)' }, dangerouslySetInnerHTML: { __html: pd.html } }) : null
+    };
+    const projs = [
+      { icon: 'rocket', category: 'Simulation', title: 'Quant Sim — Interactive financial models in Rust + WebAssembly', date: '2025 — Present · quant.lpulcini.com', tags: ['Stochastic Processes', 'Monte Carlo', 'Rust'], mediaBg: 'var(--blue-600)', href: 'https://quant.lpulcini.com' },
+      { icon: 'line-chart', category: 'Alpha Research', title: 'Market Forecasting — LSTM and Transformer models on limit order book features', date: '2025 — Present', tags: ['PyTorch', 'Time-Series', 'Backtesting'], mediaBg: 'var(--ink-900)' },
+      { icon: 'pen-line', category: 'Portfolio Theory', title: 'Portfolio Optimization Suite — Mean-variance and Black-Litterman from scratch', date: '2025', tags: ['Python', 'Optimization'], mediaBg: 'var(--gray-150)' }
+    ].map(p => ({
+      cursor: p.href ? 'pointer' : 'default',
+      open: p.href ? () => window.open(p.href, '_blank') : undefined,
+      card: { iconUrl: ICON(p.icon), category: p.category, title: p.title, authors: 'Lorenzo Pulcini', date: p.date, tags: p.tags, mediaBg: p.mediaBg }
+    }));
+    const sq = (i, bg) => React.createElement('div', { key: i, style: { width: '34px', height: '34px', border: '1px solid var(--border-strong)', background: bg } });
+    const row = colors => React.createElement('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', width: '100%' } }, colors.map((c, i) => sq(i, c)));
+    const mix = pct => `color-mix(in oklch, var(--accent) ${pct}%, white)`;
+    const cells = si => Array.from({ length: 10 }).map((_, i) => {
+      if (si === 0) return 'var(--white)';
+      if (si === 1) return i <= 6 ? mix(20 + i * 8) : 'var(--white)';
+      if (si === 2) return i <= 6 ? mix(20 + i * 8) : (i === 7 ? 'var(--accent)' : 'var(--white)');
+      return i === 0 ? 'var(--gray-100)' : (i <= 7 ? mix(20 + (i - 1) * 8) : (i === 8 ? 'var(--accent)' : 'var(--white)'));
+    });
+    const figSteps = ['Partition', 'Train', 'Validate', 'Roll'].map((label, si) => ({
+      key: label.toLowerCase(), label,
+      caption: 'Walk-forward validation',
+      headline: ['Split the series.', 'Fit on the past.', 'Test on the future.', 'Roll forward.'][si],
+      description: [
+        'The sample is divided into contiguous folds that preserve temporal order. No shuffling.',
+        'The model trains only on observations that precede the validation window.',
+        'Out-of-sample metrics are computed on the unseen window immediately after the training set.',
+        'The window advances one fold and the procedure repeats until the series is exhausted.'
+      ][si],
+      footnote: 'One fold shown · 10 periods',
+      diagram: row(cells(si))
+    }));
+    const bt = i => i === 0 ? '1px solid var(--border-strong)' : 'none';
+    const experiences = d.experiences.map((x, i) => ({ ...x, borderTop: bt(i) }));
+    const education = d.education.map((x, i) => ({ ...x, borderTop: bt(i) }));
+    const ventures = [
+      { name: 'Raccoon Fantasy', role: 'Co-Founder & CTO', period: '2020 — 2024', description: 'Blockchain-based multiplayer game with a dynamic market economy and pricing algorithms. 150+ concurrent players, liquidity monitoring, in-game economic modeling.', tech: ['Node.js', 'Game Dev', 'Market Microstructure'] },
+      { name: 'Similar', role: 'Co-Founder & COO', period: '2021 — 2022', description: 'Film and TV series recommendation system. ML model trained on user viewing history, with testing pipelines and performance metrics. Pitched and funded through an incubator.', tech: ['ML Development', 'ETL Pipeline', 'ML Testing'] },
+      { name: 'IBM Watson Insurance AI', role: 'Developer', period: '2018', description: 'Watson-backed insurance application using image recognition for damage detection. Reduced assessment times by 70%; featured on the IBM AI Developer blog.', tech: ['IBM Watson', 'AI', 'Image Recognition'] }
+    ].map((x, i) => ({ ...x, borderTop: bt(i) }));
+    const skillGroups = [
+      { label: 'Quantitative Finance', items: ['Derivatives Pricing', 'Asset Pricing', 'Stochastic Calculus', 'Fixed Income & Derivatives', 'Time-Series Analysis', 'Portfolio Optimization', 'Backtesting', 'Risk Modeling (VaR/ES)'] },
+      { label: 'Engineering', items: ['Python (NumPy, pandas, PyTorch)', 'Go', 'Rust', 'SQL', 'Kafka', 'Event-Driven Architecture', 'Microservices', 'Distributed Systems', 'ETL Pipelines', 'K8s', 'CI/CD'] },
+      { label: 'Certifications', items: ['CFA Level 1 Candidate', 'Bloomberg Market Concepts', 'Quantum Machine Learning (IBM)', 'MITx MicroMasters — Data, Economics, and Design of Policy'] },
+      { label: 'Languages', items: ['Italian (Native)', 'English (Fluent)', 'Spanish (Medium)'] }
+    ];
+    return {
+      navItems,
+      isResearch: route === 'research',
+      isArticle: route === 'article',
+      isPersonal: route === 'personal',
+      isContacts: route === 'contacts',
+      backToResearch: (e) => { e.preventDefault(); this.setState({ route: 'research' }); window.scrollTo(0, 0); },
+      article, pubs, projs, figSteps, figLayers: 4,
+      showAvailability: this.props.showAvailability ?? true,
+      showHighlights: !(this.props.compactExperience ?? false),
+      experiences, education, ventures, skillGroups
+    };
+  }
+}
+</script>
+</body>
+</html>
