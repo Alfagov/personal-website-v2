@@ -4,6 +4,8 @@
 .DS_Store
 data/
 node_modules/
+build/
+.svelte-kit/
 *.dc.html
 site-data.js
 support.js

@@ -35,8 +35,27 @@ test("article cards can show a selected uploaded image or GIF", () => {
   const data = structuredClone(defaultData);
   data.media = [{ id: "0123456789abcdef0123456789abcdef", filename: "0123456789abcdef0123456789abcdef.gif", mime: "image/gif", size: 42, createdAt: "2026-07-17T00:00:00.000Z", alt: "Animated model" }];
   data.articles[0].cardMediaId = data.media[0].id;
+  data.articles[0].cardImage = { aspectRatio: "1-1", objectFit: "contain", positionX: 35, positionY: 70, zoom: 125 };
   const html = homePage(data);
   assert.match(html, /class="card card--media"/);
   assert.match(html, /src="\/media\/0123456789abcdef0123456789abcdef"/);
   assert.match(html, /alt="Animated model"/);
+  assert.match(html, /card-media--ratio-1-1/);
+  assert.match(html, /--card-x:35%;--card-y:70%;--card-zoom:1.25/);
+});
+
+test("Tiptap rich-text article content is safely rendered on the public page", () => {
+  const data = structuredClone(defaultData);
+  data.articles[0].content = { type: "doc", content: [{ type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Findings", marks: [{ type: "bold" }] }] }, { type: "paragraph", content: [{ type: "text", text: "<unsafe>", marks: [{ type: "italic" }] }] }] };
+  const html = articlePage(data, data.articles[0]);
+  assert.match(html, /<h2><strong>Findings<\/strong><\/h2>/);
+  assert.match(html, /<em>&lt;unsafe&gt;<\/em>/);
+});
+
+test("Tiptap display equations are rendered with KaTeX", () => {
+  const data = structuredClone(defaultData);
+  data.articles[0].content = { type: "doc", content: [{ type: "blockMath", attrs: { latex: "C(S,K,T,z)=K\\,f_\\theta\\left(\\frac{S}{K},T,z\\right)" } }] };
+  const html = articlePage(data, data.articles[0]);
+  assert.match(html, /class="article-math"/);
+  assert.match(html, /katex-display/);
 });

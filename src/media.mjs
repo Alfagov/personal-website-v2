@@ -1,4 +1,4 @@
-import { mkdir, open, readFile, rename } from "node:fs/promises";
+import { mkdir, open, readFile, rename, unlink } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 
@@ -37,5 +37,11 @@ export function createMediaStore(directory) {
     if (!/^[a-f0-9]{32}\.(png|jpg|gif|webp|pdf)$/.test(clean)) return null;
     try { return await readFile(join(target, clean)); } catch (error) { if (error.code === "ENOENT") return null; throw error; }
   }
-  return { init, inspect, save, read, directory: target };
+  async function remove(filename) {
+    const clean = basename(filename);
+    if (!/^[a-f0-9]{32}\.(png|jpg|gif|webp|pdf)$/.test(clean)) throw new Error("Invalid stored filename");
+    try { await unlink(join(target, clean)); return true; }
+    catch (error) { if (error.code === "ENOENT") return false; throw error; }
+  }
+  return { init, inspect, save, read, remove, directory: target };
 }

@@ -7,6 +7,7 @@ import { createStore } from "./src/store.mjs";
 import { createMediaStore } from "./src/media.mjs";
 import { createSecurity, securityHeaders } from "./src/security.mjs";
 import { createBackup, parseBackup } from "./src/backup.mjs";
+import { mediaIdsInRichText, sanitizeRichText } from "./src/rich-text.mjs";
 import { aboutPage, adminPage, articlePage, contactPage, errorPage, homePage, loginPage, setPublicOrigin } from "./src/templates.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,7 @@ await store.init();
 const mediaStore = createMediaStore(join(dirname(store.path), "uploads"));
 await mediaStore.init();
 const security = createSecurity({ secret: sessionSecret, production, sessionTtlSeconds });
-const headers = securityHeaders({ production, csp: "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https://avatars.githubusercontent.com; style-src 'self'; script-src 'none'; connect-src 'self'; font-src 'self'" });
+const headers = securityHeaders({ production, csp: "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https://avatars.githubusercontent.com; style-src 'self'; script-src 'self'; connect-src 'self'; font-src 'self'" });
 const rateBuckets = new Map();
 
 const server = createServer(async (request, response) => {
@@ -43,6 +44,9 @@ const server = createServer(async (request, response) => {
     response.headOnly = method === "HEAD";
 
     if (readMethod && url.pathname === "/styles.css") return sendStatic(response, join(here, "public/styles.css"), "text/css; charset=utf-8");
+    if (readMethod && url.pathname === "/admin-editor.css") return sendStatic(response, join(here, "public/admin-editor.css"), "text/css; charset=utf-8", 86400);
+    if (readMethod && url.pathname === "/admin-editor.js") return sendStatic(response, join(here, "public/admin-editor.js"), "text/javascript; charset=utf-8", 86400);
+    if (readMethod && /^\/editor-assets\/[A-Za-z0-9_-]+\.(woff2|woff|ttf)$/.test(url.pathname)) return sendStatic(response, join(here, "public", url.pathname), url.pathname.endsWith(".woff2") ? "font/woff2" : url.pathname.endsWith(".woff") ? "font/woff" : "font/ttf", 604800);
     if (readMethod && url.pathname === "/robots.txt") return sendStatic(response, join(here, "public/robots.txt"), "text/plain; charset=utf-8");
     if (readMethod && url.pathname === "/og.png") return sendStatic(response, join(here, "public/og.png"), "image/png", 86400);
     if (readMethod && ["/assets/IBMPlexMono-Regular.otf", "/assets/IBMPlexMono-Medium.otf", "/assets/IBMPlexMono-Bold.otf"].includes(url.pathname)) return sendStatic(response, join(fontDirectory, url.pathname.slice("/assets/".length)), "font/otf", 604800);
@@ -216,11 +220,12 @@ async function handleAdminWrite(path, form) {
   let entry;
   if (section === "articles") {
     const title = required(form, "title", 240);
-    const body = paragraphs(form, "body", 30, 4000);
+    const content = richText(form);
     const cardMediaId = cleanMediaId(form.get("cardMediaId") || "");
     if (form.get("cardMediaId") && !cardMediaId) throw publicError(400, "Invalid article card image");
     if (cardMediaId && !store.read().media.some((media) => media.id === cardMediaId)) throw publicError(400, "Choose an uploaded image for the article card");
-    entry = { id: id || uniqueId(title), title, category: required(form, "category", 120), status: enumValue(form, "status", ["Article", "Preprint", "Working Paper", "Peer Reviewed", "Draft", "Thesis"]), date: text(form, "date", 200), tags: csv(form, "tags", 12, 60), abstract: text(form, "abstract", 2000), metrics: metrics(form), body, method: text(form, "method", 3000), cardMediaId, embed: customEmbed(form, body.length) };
+    for (const mediaId of mediaIdsInRichText(content || { type: "doc", content: [] })) if (!store.read().media.some((media) => media.id === mediaId)) throw publicError(400, "Choose an uploaded image for the article content");
+    entry = { id: id || uniqueId(title), title, category: required(form, "category", 120), status: enumValue(form, "status", ["Article", "Preprint", "Working Paper", "Peer Reviewed", "Draft", "Thesis"]), date: text(form, "date", 200), tags: csv(form, "tags", 12, 60), abstract: text(form, "abstract", 2000), metrics: metrics(form), body: [], method: text(form, "method", 3000), cardMediaId, content, embed: customEmbed(form, 0, Boolean(content)) };
   } else if (section === "experience") {
     const role = required(form, "role", 160);
     entry = { id: id || uniqueId(role), company: required(form, "company", 160), role, period: text(form, "period", 120), location: text(form, "location", 160), highlights: lines(form, "highlights", 20, 1000), isCurrent: form.get("isCurrent") === "1" };
@@ -250,9 +255,10 @@ function enumValue(form, name, allowed) { const value = String(form.get(name) ||
 function csv(form, name, limit, itemMax) { const values = text(form, name, limit * (itemMax + 1)).split(",").map((value) => value.trim()).filter(Boolean); if (values.length > limit || values.some((value) => value.length > itemMax)) throw publicError(400, `Invalid ${name}`); return values; }
 function lines(form, name, limit, itemMax) { const values = text(form, name, limit * (itemMax + 1)).split(/\r?\n/).map((value) => value.trim()).filter(Boolean); if (values.length > limit || values.some((value) => value.length > itemMax)) throw publicError(400, `Invalid ${name}`); return values; }
 function paragraphs(form, name, limit, itemMax) { const values = text(form, name, limit * (itemMax + 2)).split(/\n\s*\n/).map((value) => value.replace(/\s*\n\s*/g, " ").trim()).filter(Boolean); if (values.length > limit || values.some((value) => value.length > itemMax)) throw publicError(400, `Invalid ${name}`); return values; }
+function richText(form) { const raw = rawText(form, "content", 150_000); if (!raw) return null; try { return sanitizeRichText(JSON.parse(raw)); } catch (error) { throw publicError(400, error.message); } }
 function metrics(form) { return lines(form, "metrics", 12, 200).map((line) => { const index = line.indexOf("|"); if (index < 1) throw publicError(400, "Each metric must use: label | value"); const label = line.slice(0, index).trim(); const value = line.slice(index + 1).trim(); if (!label || !value || label.length > 100 || value.length > 100) throw publicError(400, "Invalid metric"); return { label, value }; }); }
 function rawText(form, name, max) { const value = String(form.get(name) || ""); if (Buffer.byteLength(value, "utf8") > max) throw publicError(400, `${name} is too long`); return value; }
-function customEmbed(form, paragraphCount) {
+function customEmbed(form, paragraphCount, richContent = false) {
   const html = rawText(form, "embedHtml", 350_000);
   const css = rawText(form, "embedCss", 200_000);
   const js = rawText(form, "embedJs", 350_000);
@@ -260,9 +266,10 @@ function customEmbed(form, paragraphCount) {
   if (!html && !css && !js && !rawData) return null;
   let data = "";
   if (rawData) { try { data = JSON.stringify(JSON.parse(rawData)); } catch { throw publicError(400, "Graph JSON data must be valid JSON"); } }
-  const placement = enumValue(form, "embedPlacement", ["only", "before", "end", ...Array.from({ length: 30 }, (_, index) => `after-${index + 1}`)]);
+  let placement = enumValue(form, "embedPlacement", ["only", "before", "end", ...Array.from({ length: 30 }, (_, index) => `after-${index + 1}`)]);
   const after = /^after-(\d+)$/.exec(placement);
-  if (after && Number(after[1]) > paragraphCount) throw publicError(400, "Choose an embed placement that exists in the article body");
+  if (after && richContent) placement = "end";
+  else if (after && Number(after[1]) > paragraphCount) throw publicError(400, "Choose an embed placement that exists in the article body");
   const height = Number(form.get("embedHeight"));
   if (!Number.isInteger(height) || height < 200 || height > 3000) throw publicError(400, "Embed height must be between 200 and 3000 pixels");
   return { html, css, js, data, placement, height };

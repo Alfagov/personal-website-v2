@@ -3,6 +3,8 @@
 data/content.json
 data/*.tmp
 node_modules/
+build/
+.svelte-kit/
 npm-debug.log*
 .idea/
 _ds/

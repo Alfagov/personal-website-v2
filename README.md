@@ -1,77 +1,75 @@
 # Lorenzo Pulcini portfolio
 
-A dependency-light, server-rendered portfolio with a GitHub-authenticated admin area. Public content is readable without JavaScript. Content edits are validated on the server and persisted to one mounted JSON file using atomic replacement.
+A SvelteKit portfolio and GitHub-authenticated publishing studio. Public pages are server-rendered, while the article workspace uses Tiptap for structured writing, equations, configurable image layouts, uploaded media, and inline interactive figures.
 
-## Security model
+Public article URLs are generated from their titles, using lowercase words separated by hyphens. Internal IDs remain stable so renaming an article does not disturb its figures or attachments; old ID-based URLs redirect to the current title URL.
 
-- `/admin` requires GitHub OAuth and a server-side allowlist. A successful GitHub login alone does **not** grant admin access.
-- Prefer `GITHUB_ALLOWED_IDS` (immutable numeric GitHub account IDs) over usernames. You can set both.
-- OAuth requests use signed, 10-minute state cookies. Admin sessions are signed, `HttpOnly`, `SameSite=Lax`, and last eight hours by default.
-- Every content change requires a session-bound CSRF token and an exact same-origin `Origin` header.
-- Stored content is rendered as escaped text; the admin cannot inject arbitrary HTML or scripts.
-- Responses include a restrictive Content Security Policy, clickjacking protection, MIME sniffing protection, a permissions policy, and HSTS in production.
-- The production container runs as an unprivileged user with a read-only filesystem, all Linux capabilities dropped, and only `/data` writable.
+## Publishing studio
 
-The in-process rate limiter is deliberately simple. If this is deployed across multiple replicas or exposed to high traffic, enforce rate limits at the reverse proxy or edge as well.
+Open `/admin` with an authorized GitHub account. The article workspace supports:
 
-## Article code blocks and backups
+- headings, lists, quotes, links, code blocks, rules, and undo/redo;
+- KaTeX inline expressions with `\(S\)` and display equations with `\[ E = mc^2 \]`, including typed and pasted delimiters;
+- uploaded PNG, JPEG, GIF, and WebP images;
+- PDF attachments;
+- interactive figure blocks that can be placed anywhere in the article;
+- built-in bar chart, scatter plot, and simulation starters;
+- per-figure HTML, CSS, JavaScript, and JSON data;
+- contained, wide, and full-bleed figure layouts with live sandboxed previews.
 
-The article editor supports a standard article plus an optional HTML, CSS, and JavaScript block. Choose whether that block appears before the article, after a specific paragraph, at the end, or as the complete article page. Custom code runs in a sandboxed iframe: it cannot read the admin, submit forms, or use network APIs. Keep third-party libraries bundled into the code block rather than loading them from a CDN. A validated JSON field is exposed to custom code as `window.__ARTICLE_DATA__`, which is useful for charts and visualizations.
+Interactive figure code runs in a sandboxed iframe with no network access. Its validated JSON is exposed as `window.__ARTICLE_DATA__`. Figure metadata and code are included in JSON backups; uploaded image and PDF bytes remain in the data volume.
 
-Upload PNG, JPEG, GIF, or WebP images from the article editor (8 MB per file). Use the displayed `[[image:IMAGE_ID]]` marker on its own line in a standard article body, or `/media/IMAGE_ID` from the article’s custom HTML. You can also select any uploaded image or GIF as the visual header for an article’s homepage card. You can also attach PDFs (20 MB each) with a download label; readers receive them as file downloads from the article page. Image and PDF bytes are stored in the Docker data volume.
-
-Use **Download backup** in Admin → Site settings to export all content, image/PDF metadata, custom code, and graph JSON as JSON. **Restore backup** validates the file, requires an explicit confirmation, and replaces the complete current data set; only restore files you trust. The JSON export does not include image or PDF bytes, so back up the Docker `website-data` volume as well when uploaded files matter.
-
-## GitHub OAuth setup
-
-1. Open GitHub **Settings → Developer settings → OAuth Apps → New OAuth App**.
-2. Use your public HTTPS site URL as the homepage URL.
-3. Set the callback URL to `https://your-domain.example/auth/github/callback`.
-4. Copy `.env.example` to `.env` and fill in `APP_ORIGIN`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_ALLOWED_IDS` or `GITHUB_ALLOWED_USERS`, and `SESSION_SECRET`.
-5. Generate a session secret with `openssl rand -base64 48`.
-
-Never commit `.env`. Rotate the GitHub client secret and session secret if either is exposed. Rotating `SESSION_SECRET` signs every administrator out.
-
-## Run locally
+## Local development
 
 Node.js 22 or later is required.
 
 ```sh
+npm install
 cp .env.example .env
-# Fill in .env, then export it in your shell or use your preferred env loader.
+# Fill in the GitHub OAuth and session values, then load the environment.
 set -a; . ./.env; set +a
-npm start
+npm run dev
 ```
 
-Open `http://localhost:3000`. For a local OAuth app, use `http://localhost:3000/auth/github/callback` as the callback URL. Secure cookies are enabled automatically when `NODE_ENV=production`; use development mode for direct local HTTP.
+Open `http://localhost:5173` for Vite development. Set the OAuth callback to `http://localhost:5173/auth/github/callback` while developing, and keep `APP_ORIGIN` aligned with that address.
 
-## Deploy with Docker Compose
-
-Terminate TLS at a reverse proxy or hosting platform and forward traffic to the loopback-only port exposed by Compose. `APP_ORIGIN` must exactly match the public HTTPS origin.
+For a production-style local run:
 
 ```sh
-cp .env.example .env
-# Fill in production values in .env.
-docker compose up --build -d
-docker compose ps
+npm run build
+PORT=3000 npm start
 ```
 
-The named volume `website-data` contains `/data/content.json`. Back up that volume before infrastructure changes. The health endpoint is `/healthz`.
+## Security model
 
-To run the image without Compose:
+- GitHub OAuth is paired with a server-side allowlist; GitHub login alone does not grant access.
+- Prefer immutable numeric `GITHUB_ALLOWED_IDS` over usernames.
+- Sessions and OAuth state are signed, short-lived, `HttpOnly`, and `SameSite=Lax`.
+- SvelteKit origin checks and a session-bound CSRF token protect every admin mutation.
+- Rich-text documents, links, media references, equations, figure references, code sizes, and JSON data are validated on the server.
+- Uploaded files are verified by signature; SVG uploads are not accepted.
+- Author code is isolated from the parent site in a script-only sandbox with a restrictive content security policy.
+- Content is stored with atomic file replacement and restrictive permissions.
 
-```sh
-docker build -t lorenzo-portfolio .
-docker run --read-only --cap-drop=ALL --security-opt=no-new-privileges \
-  --env-file .env -p 127.0.0.1:3000:3000 \
-  -v lorenzo-portfolio-data:/data lorenzo-portfolio
-```
+Generate `SESSION_SECRET` with `openssl rand -base64 48`. Production should always set `APP_ORIGIN`, both GitHub OAuth credentials, an allowed ID or username, and `SESSION_SECRET`. The production launcher maps `APP_ORIGIN` to SvelteKit's `ORIGIN`; if you run `build/index.js` directly, set both values to the exact public origin.
 
-## Validate
+## Validation and deployment
 
 ```sh
 npm run check
 docker compose config
+docker compose up --build -d
 ```
 
-The original `.dc.html` prototype files remain in the repository as reference material; the deployable application entrypoint is `server.mjs`.
+The production adapter is `@sveltejs/adapter-node`. The container runs as an unprivileged user with a read-only filesystem and `/data` as its only writable volume. Back up that volume when uploaded files matter. The health endpoint is `/healthz`.
+
+## Project layout
+
+- `src/routes` — SvelteKit pages, form actions, OAuth, media, and sandbox endpoints
+- `src/lib/components/ArticleEditor.svelte` — Tiptap editor and interactive figure workbench
+- `src/lib/server` — application initialization and validated content mutations
+- `src/rich-text.mjs` — server-side Tiptap schema validation and safe rendering
+- `src/store.mjs` and `src/media.mjs` — persistent content and uploaded files
+- `public/styles.css` — public site and studio design system
+
+The original `.dc.html` prototypes and the previous server-rendered modules remain as reference material; the deployable application is the SvelteKit build in `build/`.

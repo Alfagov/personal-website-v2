@@ -1,3 +1,5 @@
+import { sanitizeCardImage } from "./lib/card-image.js";
+
 const STATUSES = new Set(["Article", "Preprint", "Working Paper", "Peer Reviewed", "Draft", "Thesis"]);
 const PLACEMENTS = new Set(["only", "before", "end", ...Array.from({ length: 30 }, (_, index) => `after-${index + 1}`)]);
 
@@ -64,6 +66,30 @@ function jsonData(value) {
   try { return JSON.stringify(JSON.parse(source)); } catch { throw new Error("Custom JSON data is not valid JSON"); }
 }
 
+function figures(value) {
+  if (!Array.isArray(value) || value.length > 24) throw new Error("Invalid interactive figures");
+  const seen = new Set();
+  return value.map((figure) => {
+    if (!isObject(figure)) throw new Error("Invalid interactive figure");
+    const figureId = id(figure.id, "interactive figure id");
+    if (seen.has(figureId)) throw new Error("Duplicate interactive figure id");
+    seen.add(figureId);
+    if (!Number.isInteger(figure.height) || figure.height < 200 || figure.height > 2000) throw new Error("Invalid interactive figure height");
+    if (!["contained", "wide", "full"].includes(figure.layout)) throw new Error("Invalid interactive figure layout");
+    return {
+      id: figureId,
+      title: valueText(figure.title, 160, "interactive figure title", true),
+      caption: valueText(figure.caption || "", 1000, "interactive figure caption"),
+      html: valueText(figure.html || "", 350_000, "interactive figure HTML"),
+      css: valueText(figure.css || "", 200_000, "interactive figure CSS"),
+      js: valueText(figure.js || "", 350_000, "interactive figure JavaScript"),
+      data: jsonData(figure.data),
+      height: figure.height,
+      layout: figure.layout
+    };
+  });
+}
+
 function article(value) {
   if (!isObject(value) || !STATUSES.has(value.status)) throw new Error("Invalid article");
   if (!Array.isArray(value.metrics) || value.metrics.length > 12) throw new Error("Invalid article metrics");
@@ -82,6 +108,9 @@ function article(value) {
     body: list(value.body, 30, 4000, "article body"),
     method: valueText(value.method, 3000, "article method"),
     cardMediaId: mediaId(value.cardMediaId, "article card image"),
+    cardImage: sanitizeCardImage(value.cardImage),
+    content: sanitizeRichText(value.content),
+    figures: figures(value.figures || []),
     embed: embed(value.embed)
   };
 }
@@ -163,3 +192,4 @@ export function parseBackup(raw) {
   if (!isObject(backup) || backup.schemaVersion !== 1 || !isObject(backup.data)) throw new Error("Backup format is not supported");
   return sanitizeSiteData(backup.data);
 }
+import { sanitizeRichText } from "./rich-text.mjs";
