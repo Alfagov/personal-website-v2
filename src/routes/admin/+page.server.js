@@ -10,7 +10,7 @@ export async function load({ url, locals }) {
   if (!locals.user) return { configured: app.oauthConfigured, authenticated: false };
   const section = sections.has(url.searchParams.get("section")) ? url.searchParams.get("section") : "profile";
   const editId = cleanId(url.searchParams.get("edit") || "");
-  const notice = { saved: "Changes saved and published.", deleted: "Entry deleted.", restored: "Backup restored and published.", "media-deleted": "Image deleted from the media library.", "attachment-deleted": "Document deleted from the article." }[url.searchParams.get("notice")] || "";
+  const notice = { saved: "Changes saved and published.", deleted: "Entry deleted.", ordered: "Article order updated and published.", restored: "Backup restored and published.", "media-deleted": "Image deleted from the media library.", "attachment-deleted": "Document deleted from the article." }[url.searchParams.get("notice")] || "";
   return { authenticated: true, content: app.store.read(), section, editId, notice, user: locals.user };
 }
 
@@ -32,7 +32,8 @@ async function contentAction(event, action, section) {
   if (verified.error) return verified.error;
   try { await handleContentWrite(app, action, verified.form); }
   catch (cause) { return fail(cause.status || 400, { message: cause.expose || cause.status ? cause.message : "The change could not be saved." }); }
-  throw redirect(303, `/admin?section=${section}&notice=${action.endsWith(":delete") ? "deleted" : "saved"}`);
+  const notice = action.endsWith(":delete") ? "deleted" : action.endsWith(":reorder") ? "ordered" : "saved";
+  throw redirect(303, `/admin?section=${section}&notice=${notice}`);
 }
 
 async function removeUploadRecord(app, collection, record) {
@@ -48,6 +49,7 @@ export const actions = {
   profile: (event) => contentAction(event, "profile", "profile"),
   saveArticle: (event) => contentAction(event, "articles:save", "articles"),
   deleteArticle: (event) => contentAction(event, "articles:delete", "articles"),
+  reorderArticle: (event) => contentAction(event, "articles:reorder", "articles"),
   saveExperience: (event) => contentAction(event, "experience:save", "experience"),
   deleteExperience: (event) => contentAction(event, "experience:delete", "experience"),
   saveEducation: (event) => contentAction(event, "education:save", "education"),

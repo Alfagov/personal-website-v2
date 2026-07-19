@@ -25,6 +25,20 @@ export async function handleContentWrite(app, action, form) {
     return app.store.update((data) => { data.profile = profile; });
   }
 
+  if (action === "articles:reorder") {
+    const id = cleanId(form.get("id") || "");
+    const direction = String(form.get("direction") || "");
+    if (!id) throw publicError(400, "Missing article identifier");
+    if (direction !== "up" && direction !== "down") throw publicError(400, "Invalid article order direction");
+    return app.store.update((data) => {
+      const index = data.articles.findIndex((article) => article.id === id);
+      if (index < 0) throw publicError(404, "Article not found");
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= data.articles.length) return;
+      [data.articles[index], data.articles[target]] = [data.articles[target], data.articles[index]];
+    });
+  }
+
   const match = /^(articles|experience|education):(save|delete)$/.exec(action);
   if (!match) throw publicError(404, "Admin action not found");
   const [, section, operation] = match;

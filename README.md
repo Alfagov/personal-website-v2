@@ -55,11 +55,23 @@ Generate `SESSION_SECRET` with `openssl rand -base64 48`. Production should alwa
 
 ## Validation and deployment
 
+Create the production environment file on the server itself (it is intentionally
+excluded from Git), and set `APP_ORIGIN` to the exact public HTTPS origin:
+
 ```sh
+cp .env.example .env
+# Fill in .env, including the production GitHub OAuth app credentials.
+chmod 600 .env
 npm run check
-docker compose config
-docker compose up --build -d
+docker compose config --quiet
+docker compose up --build --force-recreate -d
 ```
+
+The GitHub OAuth app callback URL must be exactly
+`https://your-domain.example/auth/github/callback`. Compose loads `.env` into
+the container and refuses to start when a required production setting is
+missing. When running `npm start` directly instead of Docker, the production
+launcher also loads `.env` automatically.
 
 The production adapter is `@sveltejs/adapter-node`. The container runs as an unprivileged user with a read-only filesystem and `/data` as its only writable volume. Back up that volume when uploaded files matter. The health endpoint is `/healthz`.
 

@@ -3,18 +3,20 @@ services:
     build: .
     restart: unless-stopped
     init: true
+    env_file:
+      - .env
     ports:
       - "127.0.0.1:3000:3000"
     environment:
       NODE_ENV: production
       DATA_FILE: /data/content.json
-      APP_ORIGIN: ${APP_ORIGIN}
-      ORIGIN: ${APP_ORIGIN}
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN in .env}
+      ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN in .env}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:?Set GITHUB_CLIENT_ID in .env}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:?Set GITHUB_CLIENT_SECRET in .env}
       GITHUB_ALLOWED_USERS: ${GITHUB_ALLOWED_USERS:-}
       GITHUB_ALLOWED_IDS: ${GITHUB_ALLOWED_IDS:-}
-      SESSION_SECRET: ${SESSION_SECRET}
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
       SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-28800}
     volumes:
       - website-data:/data
