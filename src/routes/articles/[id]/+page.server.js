@@ -1,12 +1,13 @@
 import { error, redirect } from "@sveltejs/kit";
 import { getApp } from "$lib/server/app.mjs";
 import { articleSlug } from "$lib/article-slug.js";
+import { articleShareMetadata } from "$lib/article-social.js";
 import { legacyBodyToRichText, renderRichText } from "../../../rich-text.mjs";
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 
 export async function load({ params }) {
-  const { store } = await getApp();
+  const { store, appOrigin } = await getApp();
   const site = store.read();
   const article = site.articles.find((item) => articleSlug(item.title) === params.id) || site.articles.find((item) => item.id === params.id);
   if (!article) throw error(404, "Article not found");
@@ -24,5 +25,6 @@ export async function load({ params }) {
     }
   });
   const attachments = (site.attachments || []).filter((item) => item.articleId === article.id);
-  return { article, articleHtml, attachments, profile: site.profile };
+  const share = articleShareMetadata(article, site.media, appOrigin, site.profile.name);
+  return { article, articleHtml, attachments, profile: site.profile, share };
 }

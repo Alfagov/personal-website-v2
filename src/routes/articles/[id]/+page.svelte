@@ -27,7 +27,23 @@
   });
 </script>
 
-<svelte:head><title>{data.article.title} — {data.profile.name}</title><meta name="description" content={data.article.abstract || data.article.title} /></svelte:head>
+<svelte:head>
+  <title>{data.article.title} — {data.profile.name}</title>
+  <meta name="description" content={data.share.description} />
+  <link rel="canonical" href={data.share.url} />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={data.share.title} />
+  <meta property="og:image" content={data.share.image} />
+  <meta property="og:image:alt" content={data.share.imageAlt} />
+  <meta property="og:description" content={data.share.description} />
+  <meta property="og:url" content={data.share.url} />
+  <meta property="og:site_name" content={data.profile.name} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={data.share.title} />
+  <meta name="twitter:description" content={data.share.description} />
+  <meta name="twitter:image" content={data.share.image} />
+  <meta name="twitter:image:alt" content={data.share.imageAlt} />
+</svelte:head>
 <main id="main">
   <section class="article-hero shell">
     <a class="back" href="/">← Back to index</a>
